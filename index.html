@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VOLT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-primary: #30363d;
+            --border-secondary: #21262d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #7d8590;
+            --text-muted: #6e7681;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-purple: #a5a2ff;
+            --accent-orange: #ff8c42;
+            --success: #238636;
+            --warning: #d29922;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg-primary);
+        }
+
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .title p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+            min-height: 0;
+        }
+
+        .editor-panel {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            background: var(--bg-tertiary);
+            border-right: 1px solid var(--border-secondary);
+            padding: 12px 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-container {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-secondary);
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            padding: 12px 12px 12px 62px;
+            tab-size: 2;
+        }
+
+        .code-editor::placeholder {
+            color: var(--text-muted);
+        }
+
+        .preview-panel {
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            background: #ffffff;
+            box-shadow: 0 4px 12px var(--shadow);
+            border: 1px solid var(--border-primary);
+            position: relative;
+            display: inline-block;
+        }
+
+        .canvas-wrapper::before {
+            content: "Live Preview";
+            position: absolute;
+            top: -15px;
+            left: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 4px 8px;
+            border: 1px solid var(--border-primary);
+        }
+
+        #canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary:hover {
+            background: #4493f8;
+            border-color: #4493f8;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--border-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #30363d;
+            border-color: #484f58;
+        }
+
+        .btn-info {
+            background: var(--accent-purple);
+            color: white;
+            border-color: var(--accent-purple);
+        }
+
+        .btn-info:hover {
+            background: #9490ff;
+            border-color: #9490ff;
+        }
+
+        .info-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-bar {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-primary);
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .code-editor {
+            caret-color: var(--accent-blue);
+        }
+
+        .code-editor::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-editor::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        .code-editor::-webkit-scrollbar-thumb {
+            background: var(--border-primary);
+            border-radius: 4px;
+        }
+
+        .code-editor::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .popup-overlay.show {
+            display: flex;
+        }
+
+        .popup {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px var(--shadow);
+            animation: popupAppear 0.2s ease-out;
+            margin: 20px;
+        }
+
+        @keyframes popupAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .popup-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .popup-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .popup-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .popup-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .popup-content {
+            padding: 20px 24px;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .component-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.15s ease;
+        }
+
+        .component-item:hover {
+            border-color: var(--accent-blue);
+            background: #1c2128;
+        }
+
+        .component-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .component-symbol {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-weight: 600;
+            color: var(--accent-blue);
+            font-size: 18px;
+        }
+
+        .component-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .component-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .component-usage {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: 'SF Mono', Monaco, monospace;
+            background: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 24px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .popup::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .popup::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        .popup::-webkit-scrollbar-thumb {
+            background: var(--border-primary);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .editor-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--border-primary);
+            }
+
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .title h1 {
+                font-size: 16px;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .popup {
+                margin: 10px;
+                max-height: 90vh;
+            }
+
+            .popup-content {
+                padding: 16px 20px;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <div class="title">
+                    <h1>VOLT</h1>
+                    <p>Visual circuit diagram generator</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="renderMatrix()">
+                    <span>▶</span> Generate
+                </button>
+                <button class="btn btn-secondary" onclick="downloadImage()">
+                    <span>⬇</span> Export PNG
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <span class="panel-title">Circuit Definition</span>
+                    <button class="info-btn" onclick="showInfoPopup()" title="Componenti disponibili">
+                        <span>ⓘ</span>
+                    </button>
+                </div>
+
+                <div class="editor-container">
+                    <div class="line-numbers" id="lineNumbers"></div>
+                    <textarea id="matrixInput" class="code-editor"
+                        placeholder="Define your circuit...&#10;&#10;Example:&#10;-R-&#10;|&#10;G" spellcheck="false">-R+V
+|
+G</textarea>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="panel-header">
+                    <span class="panel-title">Live Preview</span>
+                    <span style="font-size: 11px; color: var(--text-muted)" id="canvasSize">800×600</span>
+                </div>
+
+                <div class="preview-container">
+                    <div class="canvas-wrapper">
+                        <canvas id="canvas" width="800" height="600"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span>Ready</span>
+            </div>
+            <div class="status-item">
+                <span id="charCount">Characters: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="infoPopup" onclick="closeInfoPopup(event)">
+        <div class="popup" onclick="event.stopPropagation()">
+            <div class="popup-header">
+                <h2 class="popup-title">Available Components</h2>
+                <button class="popup-close" onclick="closeInfoPopup()">&times;</button>
+            </div>
+            <div class="popup-content">
+                <div class="section-title">Electronic Components</div>
+                <div class="component-grid">
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">R</div>
+                            <div class="component-name">resistor</div>
+                        </div>
+                        <div class="component-usage">R</div>
+                    </div>
+
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">G</div>
+                            <div class="component-name">ground</div>
+                        </div>
+                        <div class="component-usage">G</div>
+                    </div>
+
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">V</div>
+                            <div class="component-name">voltage source</div>
+                        </div>
+                        <div class="component-desc">The component rotates according to the position of the "+"</div>
+                        <div class="component-usage">V</div>
+                    </div>
+
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">I</div>
+                            <div class="component-name">current source</div>
+                        </div>
+                        <div class="component-desc">The component rotates according to the position of the "+"</div>
+                        <div class="component-usage">I</div>
+                    </div>
+
+                </div>
+
+                <div class="section-title">Connections</div>
+                <div class="component-grid">
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">-</div>
+                            <div class="component-name">horizontal line</div>
+                        </div>
+                    </div>
+
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">|</div>
+                            <div class="component-name">vertical line</div>
+                        </div>
+                    </div>
+
+                    <div class="component-item">
+                        <div class="component-header">
+                            <div class="component-symbol">+</div>
+                            <div class="component-name">line</div>
+                        </div>
+                        <div class="component-desc">Depending on the position of this symbol, generators can change
+                            direction</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Example</div>
+                <div
+                    style="background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: 8px; padding: 16px; font-family: 'SF Mono', Monaco, monospace; font-size: 14px; color: var(--text-primary);">
+                    <div style="margin-bottom: 8px;">Simple circuit:</div>
+                    <div style="color: var(--accent-green);">
+                        -R---<br>
+                        + | |<br>
+                        V R R<br>
+                        | | |<br>
+                        -----
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./script.js"></script>
+</body>
+
+</html>
