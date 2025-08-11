@@ -20,6 +20,7 @@ async function preloadImages() {
         images['V'] = await loadImage('img/V.png');
         images['I'] = await loadImage('img/I.png');
         images['G'] = await loadImage('img/G.png');
+        images['C'] = await loadImage('img/C.png');
         images['space'] = await loadImage('img/space.png');
         images['line'] = await loadImage('img/line.png');
         images['angle'] = await loadImage('img/angle.png');
@@ -150,14 +151,14 @@ function analyzeConnectionPattern(x, y, matrix) {
     const left = x > 0 ? matrix[y][x - 1] : null;
     const right = x < width - 1 ? matrix[y][x + 1] : null;
 
-    const connectableChars = ['+', '-', '|', 'R', 'G', 'V', 'I'];
+    const connectableChars = ['+', '-', '|', 'R', 'G', 'V', 'I','C'];
 
     const hasUp = up && connectableChars.includes(up);
     const hasDown = down && connectableChars.includes(down);
     const hasLeft = left && connectableChars.includes(left);
     const hasRight = right && connectableChars.includes(right);
 
-    if (current === 'R' || current === 'G' || current === 'V' || current === 'I') {
+    if (current === 'R' || current === 'G' || current === 'V' || current === 'I' || current === 'C') {
         if (current === 'V') {
             if (left === '+') {
                 return { symbol: current, rotation: 270 };

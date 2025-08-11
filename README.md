@@ -19,6 +19,7 @@ VOLT is a web-based circuit diagram generator that converts textual circuit defi
 
 ### Electronic Components
 - **R**: Resistor
+- **C**: Capacitor
 - **V**: Voltage Source
 - **I**: Current Source
 - **G**: Ground/Earth
@@ -42,6 +43,7 @@ Create circuits using a simple text-based format where each character represents
 |```+V-``` | ![immagine](images/image_1754731621625.png) |
 |```+I-``` | ![immagine](images/image_1754732146741.png) |
 |```-G``` | ![immagine](images/image_1754732208270.png) |
+|```-C-``` |![immagine](images/image_1754917193629.png) |
 
 ***
 
